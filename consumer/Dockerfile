@@ -16,4 +16,4 @@ RUN poetry --version && cd /app/src/ \
 
 # Run gunicorn
 ENV GUNICORN_CMD_ARGS "--log-level debug  --reload --bind :9001 --workers 1"
-CMD ["bash", "-c", "$(poetry env info --path)/bin/gunicorn --chdir src/http_api main:app"]
+CMD ["bash", "-c", "$(cd src; poetry env info --path)/bin/gunicorn --chdir src/http_api main:app"]
