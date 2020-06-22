@@ -10,8 +10,10 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
 ENV PATH=$PATH:/root/.poetry/bin/
 RUN poetry --version && cd /app/src/ \
     && poetry install \
-    && poetry add environs
+    && poetry add environs \
+    && cd /app/src/ \
+    && poetry env use python
 
 # Run gunicorn
 ENV GUNICORN_CMD_ARGS "--log-level debug  --reload --bind :9001 --workers 1"
-CMD ["bash", "-c", "/root/.cache/pypoetry/virtualenvs/src-9TtSrW0h-py3.7/bin/gunicorn --chdir src/http_api main:app"]
+CMD ["bash", "-c", "$(poetry env info --path)/bin/gunicorn --chdir src/http_api main:app"]
