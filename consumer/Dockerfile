@@ -8,7 +8,9 @@ COPY src/ /app/src/
 # Install poetry
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 ENV PATH=$PATH:/root/.poetry/bin/
-RUN poetry --version && cd /app/src/ && poetry install
+RUN poetry --version && cd /app/src/ \
+    && poetry install \
+    && poetry add environs
 
 # Run gunicorn
 ENV GUNICORN_CMD_ARGS "--log-level debug  --reload --bind :9001 --workers 1"
