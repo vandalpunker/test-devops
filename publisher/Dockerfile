@@ -15,5 +15,6 @@ RUN poetry --version \
     && poetry env use python
 
 # Run gunicorn
-ENV GUNICORN_CMD_ARGS "--log-level debug  --reload --bind :9001 --workers 1"
+ENV GUNICORN_CMD_ARGS "--log-level debug --reload --bind :9000 --workers 1"
 CMD ["bash", "-c", "$(poetry env info --path)/bin/gunicorn --chdir src/http_api main:app"]
+
