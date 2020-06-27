@@ -10,8 +10,6 @@ consumer = Blueprint("consumer", __name__)
 @consumer.route("/healthcheck", methods=["GET"])
 def health_check():
     if request.method == "GET":
-        data = request.get_json()
-        ConsumerUse.receiver(data)
         return jsonify({"message": "it works"}), 200
 
 
