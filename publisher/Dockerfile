@@ -2,17 +2,17 @@ FROM python:3.7
 
 WORKDIR /app
 
-# Copy source code
-COPY src/ /app/src/
+# Install poetry and dependencies
 COPY src/pyproject.toml /app
-
-# Install poetry
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 ENV PATH=$PATH:/root/.poetry/bin/
 RUN poetry --version \
     && poetry install \
     && poetry add environs \
     && poetry env use python
+
+# Copy source code
+COPY src/ /app/src/
 
 # Run gunicorn
 ENV GUNICORN_CMD_ARGS "--log-level debug --reload --bind :9000 --workers 1"
