@@ -7,7 +7,7 @@ from src.application.use_cases.publisher import PublisherUse
 publisher = Blueprint("publisher", __name__)
 
 
-@consumer.route("/healthcheck", methods=["GET"])
+@publisher.route("/healthcheck", methods=["GET"])
 def health_check():
     if request.method == "GET":
         data = request.get_json()
