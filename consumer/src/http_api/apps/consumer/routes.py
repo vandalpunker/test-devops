@@ -10,7 +10,7 @@ consumer = Blueprint("consumer", __name__)
 @consumer.route("/healthcheck", methods=["GET"])
 def health_check():
     if request.method == "GET":
-        return jsonify({"message": "it works"}), 200
+        return jsonify({"status": "up"}), 200
 
 
 @consumer.route("/", methods=["POST"])
