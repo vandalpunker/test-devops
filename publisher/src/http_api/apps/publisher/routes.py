@@ -11,7 +11,7 @@ publisher = Blueprint("publisher", __name__)
 def health_check():
     if request.method == "GET":
         data = request.get_json()
-        ConsumerUse.receiver(data)
+        PublisherUse.receiver(data)
         return jsonify({"message": "it works"}), 200
 
 
