@@ -10,8 +10,6 @@ publisher = Blueprint("publisher", __name__)
 @publisher.route("/healthcheck", methods=["GET"])
 def health_check():
     if request.method == "GET":
-        data = request.get_json()
-        PublisherUse.receiver(data)
         return jsonify({"message": "it works"}), 200
 
 
