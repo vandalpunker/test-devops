@@ -1,0 +1,71 @@
+################ consumer
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer
+spec:
+  selector:
+    matchLabels:
+      name: consumer
+  template:
+    metadata:
+      labels:
+        name: consumer
+    spec:
+      containers:
+      - image: gcr.io/urbvan-test-281023/consumer:latest
+        imagePullPolicy: Always
+        name: consumer
+        env:
+        - name: FLASK_CONFIG
+          value: "conf.dev.Config"
+        - name: SECRET_KEY
+          value: "abcd123"
+        - name: GUNICORN_CMD_ARGS
+          value: "--log-level debug --reload --bind :9001 --workers 1"
+        ports:
+        - name: gunicorn
+          containerPort: 9001
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 9001
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 2
+          failureThreshold: 3
+          timeoutSeconds: 2
+          initialDelaySeconds: 20
+        livenessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 9001
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+          timeoutSeconds: 2
+          initialDelaySeconds: 20
+      terminationGracePeriodSeconds: 30
+---
+################ consumer service
+# https://cloud.google.com/kubernetes-engine/docs/how-to/internal-load-balance-ingress
+apiVersion: v1
+kind: Service
+metadata:
+  name: consumer
+  annotations:
+    cloud.google.com/load-balancer-type: "Internal"
+#    networking.gke.io/internal-load-balancer-subnet: "subnet-southamerica-east1-ilb"
+    networking.gke.io/internal-load-balancer-allow-global-access: "true"
+spec:
+  type: LoadBalancer
+  ports:
+  - name: gunicorn
+    port: 80
+    protocol: TCP
+    targetPort: 9001
+  selector:
+    app: hostname
+---

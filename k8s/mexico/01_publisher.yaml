@@ -1,0 +1,102 @@
+################ publisher
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: publisher
+spec:
+  selector:
+    matchLabels:
+      name: publisher
+  template:
+    metadata:
+      labels:
+        name: publisher
+    spec:
+      containers:
+      - image: gcr.io/urbvan-test-281023/publisher:latest
+        imagePullPolicy: Always
+        name: publisher
+        env:
+        - name: FLASK_CONFIG
+          value: "conf.dev.Config"
+        - name: SECRET_KEY
+          value: "abcd123"
+        - name: CONSUMER_URL
+          value: "http://10.1.0.6/"
+        - name: GUNICORN_CMD_ARGS
+          value: "--log-level debug --reload --bind :9000 --workers 1"
+        ports:
+        - name: gunicorn
+          containerPort: 9000
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 9000
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 2
+          failureThreshold: 3
+          timeoutSeconds: 2
+          initialDelaySeconds: 20
+        livenessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 9000
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+          timeoutSeconds: 2
+          initialDelaySeconds: 20
+      terminationGracePeriodSeconds: 30
+---
+################ publisher service
+apiVersion: v1
+kind: Service
+metadata:
+  name: publisher
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: gunicorn
+    port: 9000
+    protocol: TCP
+    targetPort: 9000
+  selector:
+    role: publisher
+  sessionAffinity: None
+  type: NodePort
+---
+### TLS certificate
+# https://cloud.google.com/kubernetes-engine/docs/how-to/managed-certs
+# https://cloud.google.com/load-balancing/docs/ssl-certificates/google-managed-certs
+apiVersion: networking.gke.io/v1beta1
+kind: ManagedCertificate
+metadata:
+  name: publisher
+spec:
+  domains:
+    - publisher.urbvan.dgiovanni.me
+---
+### Ingress
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: publisher
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "ip-us-central1-loadbalancer"
+    kubernetes.io/ingress.allow-http: "true"
+    networking.gke.io/managed-certificates: publisher
+spec:
+  backend:
+    serviceName: publisher
+    servicePort: 9000
+  rules:
+  - host: publisher.urbvan.dgiovanni.me
+    http:
+      paths:
+      - backend:
+          serviceName: publisher
+          servicePort: 9000
+---
