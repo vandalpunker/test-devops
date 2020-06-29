@@ -67,5 +67,5 @@ spec:
     protocol: TCP
     targetPort: 9001
   selector:
-    app: hostname
+    name: consumer
 ---

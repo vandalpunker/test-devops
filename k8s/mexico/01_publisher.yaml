@@ -22,7 +22,7 @@ spec:
         - name: SECRET_KEY
           value: "abcd123"
         - name: CONSUMER_URL
-          value: "http://10.1.0.6/"
+          value: "http://10.1.0.9:80/"
         - name: GUNICORN_CMD_ARGS
           value: "--log-level debug --reload --bind :9000 --workers 1"
         ports:
@@ -64,7 +64,7 @@ spec:
     protocol: TCP
     targetPort: 9000
   selector:
-    role: publisher
+    name: publisher
   sessionAffinity: None
   type: NodePort
 ---
